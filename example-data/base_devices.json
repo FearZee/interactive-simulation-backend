@@ -1,0 +1,144 @@
+{
+  "base_devices": [
+    {
+      "reference": "e510cfe3-d962-4053-9887-6d8af08cb29f",
+      "name": "Smart TV",
+      "type": "tv",
+      "wattage": 60,
+      "standByWattage": 1.0
+    },
+    {
+      "reference": "f60d865c-5ea4-4b5f-b226-ddc58910a932",
+      "name": "Sound system",
+      "type": "sound system",
+      "wattage": 70,
+      "standByWattage": 1.0
+    },
+    {
+      "reference": "73f103ac-c569-4f7f-b2da-a3e16403c05a",
+      "name": "Play Station",
+      "type": "gaming console",
+      "wattage": 200,
+      "standByWattage": 1.0
+    },
+    {
+      "reference": "1ddbac90-52ec-4c20-9538-ca5b628c522a",
+      "name": "Gaming PC",
+      "type": "gaming pc",
+      "wattage": 600,
+      "standByWattage": 0
+    },
+    {
+      "reference": "261955f1-7d23-4a77-8f91-c4302e7ad179",
+      "name": "Smart Refrigerator",
+      "type": "appliance",
+      "wattage": 40,
+      "standByWattage": 40
+    },
+    {
+      "reference": "0ed2594d-4df8-4568-be04-47df43e5dd11",
+      "name": "Smart Lighting System",
+      "type": "lights",
+      "wattage": 50,
+      "standByWattage": 1.5
+    },
+    {
+      "reference": "be09ec88-e992-4700-93dd-25a812a30406",
+      "name": "Smart Thermostat",
+      "type": "thermostat",
+      "wattage": 5,
+      "standByWattage": 0.2
+    },
+    {
+      "reference": "68b3b5ca-db09-42bc-8b84-40188569ec1c",
+      "name": "Regular Ceiling Fan",
+      "type": "fan",
+      "wattage": 60,
+      "standByWattage": 2.0
+    },
+    {
+      "reference": "757936bd-1d85-4ff0-8b63-359fdfeb13fb",
+      "name": "Coffee Maker",
+      "type": "coffee_machine",
+      "wattage": 1500,
+      "standByWattage": 5.0
+    },
+    {
+      "reference": "446bec9d-f731-4f29-b2bd-40da24a63d72",
+      "name": "Toaster",
+      "type": "toaster",
+      "wattage": 30,
+      "standByWattage": 3.0
+    },
+    {
+      "reference": "1133dad1-794c-44a8-9ba3-c652ceb067ae",
+      "name": "Smart Washing Machine",
+      "type": "washing-machine",
+      "wattage": 600,
+      "standByWattage": 2.0
+    },
+    {
+      "reference": "e78a33db-411f-422b-a89f-76edc320e53f",
+      "name": "Smart Oven",
+      "type": "oven",
+      "wattage": 800,
+      "standByWattage": 4.0
+    },
+    {
+      "reference": "a73d13ef-c520-46d2-9b88-5ce2398f5948",
+      "name": "Regular Microwave",
+      "type": "microwave",
+      "wattage": 900,
+      "standByWattage": 4.0
+    },
+    {
+      "reference": "554445d2-7722-4ccd-9021-0604821e2ab0",
+      "name": "Smart Dishwasher",
+      "type": "dishwasher",
+      "wattage": 1000,
+      "standByWattage": 4.0
+    },
+    {
+      "reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+      "name": "Laptop",
+      "type": "computer",
+      "wattage": 45,
+      "standByWattage": 1.0
+    },
+    {
+      "reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+      "name": "Screen",
+      "type": "screen",
+      "wattage": 70,
+      "standByWattage": 1.0
+    },
+    {
+      "reference": "fd6045c9-32bd-4ed1-b820-98b3e4b9d334",
+      "name": "Heat Pump",
+      "type": "heat-pump",
+      "wattage": 650,
+      "standByWattage": 11
+    },
+    {
+      "reference": "f79d2d63-f74d-4605-9d3b-230aeeacd47f",
+      "name": "Heating Rod",
+      "type": "heating-rod",
+      "wattage": 1500,
+      "standByWattage": 5
+    },
+    {
+      "reference": "3ae499a6-4dac-48f6-85d8-62c2f4fbc3e8",
+      "name": "Cleaner",
+      "type": "cleaner",
+      "wattage": 900,
+      "standByWattage": 0
+    },
+    {
+      "reference": "5f3d7513-6d8e-4d55-9d0f-57537a345875",
+      "name": "Hair dryer",
+      "type": "hair-dryer",
+      "wattage": 1500,
+      "standByWattage": 0
+    }
+  ]
+}
