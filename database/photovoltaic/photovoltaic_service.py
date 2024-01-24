@@ -18,6 +18,15 @@ def create_photovoltaic(db, photovoltaic: CreatePhotovoltaicScheme):
     return db_photovoltaic
 
 
+def get_pv_output_by_reference(db, photovoltaic_reference: uuid.UUID, day: int):
+    return (
+        db.query(EnergyOutput)
+        .filter(EnergyOutput.photovoltaic_reference == photovoltaic_reference)
+        .filter(EnergyOutput.day == day)
+        .first()
+    )
+
+
 def get_output_by_day(db, day: int, photovoltaic_reference: uuid.UUID):
     output = (
         db.query(EnergyOutput)
@@ -41,15 +50,12 @@ def get_output_by_day(db, day: int, photovoltaic_reference: uuid.UUID):
 
 
 def calculate_solar_output_for_day(db, day: int, photovoltaic_reference: uuid.UUID):
-    ic(photovoltaic_reference)
     db_photovoltaic = (
         db.query(Photovoltaic)
         .filter(Photovoltaic.reference == photovoltaic_reference)
         .options(joinedload(Photovoltaic.simulation))
         .first()
     )
-
-    ic(db_photovoltaic)
 
     # db_energy_output = db.query(EnergyOutput).filter(EnergyOutput.day == day).all()
     db_weather = (

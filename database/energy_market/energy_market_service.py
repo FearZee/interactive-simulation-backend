@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from database.weather.weather_service import get_weather_by_reference
 from .energy_market_model import EnergyMarket
 
-BASE_PRICE = 0.3
+BASE_PRICE = 30
+AVG_RENEWABLE_PRODUCTION_PERCENTAGE = 0.4
 
 
 def get_energy_market_by_reference(db: Session, reference: uuid.UUID):
@@ -15,7 +16,7 @@ def get_energy_market_by_reference(db: Session, reference: uuid.UUID):
 
 
 def calculate_energy_price(renewable_generation):
-    merit_order_factor = 1 - 0.4 * renewable_generation
+    merit_order_factor = 1 - AVG_RENEWABLE_PRODUCTION_PERCENTAGE * renewable_generation
     energy_price = BASE_PRICE * merit_order_factor
     return energy_price
 
@@ -36,8 +37,6 @@ def create_price_for_day(db: Session, day: int, weather_reference: uuid.UUID):
         renewable_generation_range = (0.25, 1.85)
 
     db_weather = get_weather_by_reference(db=db, reference=weather_reference)
-
-    ic(db_weather.weather)
 
     for hour in range(24):
         sun_intensity = db_weather.weather.get(f"{hour}").get("sun")

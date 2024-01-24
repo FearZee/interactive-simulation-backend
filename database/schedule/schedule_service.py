@@ -2,9 +2,10 @@ import json
 import uuid
 
 from icecream import icecream, ic
+from sqlalchemy import desc, asc
 from sqlalchemy.orm import Session, joinedload
 
-from database.device.device_model import TypeEnum
+from database.device.device_model import TypeEnum, Device
 from database.device.device_scheme import CreateDeviceScheme
 from database.device.device_service import create_device
 from database.schedule.schedule_model import Schedule
@@ -38,6 +39,19 @@ def get_schedule_by_reference_with_devices(db: Session, schedule_reference):
         db.query(Schedule)
         .filter(Schedule.reference == schedule_reference)
         .options(joinedload(Schedule.devices))
+        .first()
+    )
+
+
+def get_schedule_by_simulation_with_devices(
+    db: Session, simulation_reference: uuid.UUID, day: int
+):
+    return (
+        db.query(Schedule)
+        .filter(Schedule.simulation_reference == simulation_reference)
+        .filter(Schedule.day == day)
+        .join(Device)
+        .options(joinedload(Schedule.devices).joinedload(Device.base_device))
         .first()
     )
 
