@@ -2,8 +2,12 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from database.device.device_scheme import UpdateDeviceScheme, CreateBaseDevice
-from device_model import Device, BaseDevice
+from database.device.device_scheme import (
+    UpdateDeviceScheme,
+    CreateBaseDevice,
+    CreateDeviceScheme,
+)
+from .device_model import Device, BaseDevice
 
 
 def get_device_by_reference(db: Session, device_reference: uuid.UUID):
@@ -35,3 +39,18 @@ def create_base_device(db: Session, device: CreateBaseDevice):
     db.commit()
     db.refresh(db_base_device)
     return db_base_device
+
+
+def create_device(db: Session, device: CreateDeviceScheme):
+    db_device = Device(
+        type=device.device_type,
+        time_slot=device.time_slot,
+        duration=device.duration,
+        intensity=device.intensity,
+        base_device_reference=device.base_device_reference,
+        schedule_reference=device.schedule_reference,
+    )
+    db.add(db_device)
+    db.commit()
+    db.refresh(db_device)
+    return db_device

@@ -14,6 +14,7 @@ from database.schedule import schedule_model
 from database.simulation import simulation_model
 from database.weather import weather_model
 from database.weather.weather_service import create_weather
+from routes.schedule import schedule_router
 from routes.simulation import simulation_router
 from routes.photovoltaic import pv_router
 
@@ -41,8 +42,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 app.include_router(simulation_router)
 app.include_router(pv_router)
+app.include_router(schedule_router)
 
 
 def get_db():

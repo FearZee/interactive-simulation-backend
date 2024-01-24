@@ -2,6 +2,8 @@ import uuid
 
 from pydantic import BaseModel
 
+from database.device.device_model import TypeEnum
+
 
 class DeviceScheme(BaseModel):
     reference: uuid.UUID
@@ -9,6 +11,19 @@ class DeviceScheme(BaseModel):
     time_slot: int
     duration: int
     intensity: float
+
+    base_device_reference: uuid.UUID
+    schedule_reference: uuid.UUID
+
+    class Config:
+        from_attributes = True
+
+
+class CreateDeviceScheme(BaseModel):
+    device_type: TypeEnum
+    time_slot: int
+    duration: int
+    intensity: float = None
 
     base_device_reference: uuid.UUID
     schedule_reference: uuid.UUID

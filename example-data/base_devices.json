@@ -10,21 +10,21 @@
     {
       "reference": "f60d865c-5ea4-4b5f-b226-ddc58910a932",
       "name": "Sound system",
-      "type": "sound system",
+      "type": "sound-system",
       "wattage": 70,
       "standByWattage": 1.0
     },
     {
       "reference": "73f103ac-c569-4f7f-b2da-a3e16403c05a",
       "name": "Play Station",
-      "type": "gaming console",
+      "type": "gaming-console",
       "wattage": 200,
       "standByWattage": 1.0
     },
     {
       "reference": "1ddbac90-52ec-4c20-9538-ca5b628c522a",
       "name": "Gaming PC",
-      "type": "gaming pc",
+      "type": "gaming-pc",
       "wattage": 600,
       "standByWattage": 0
     },
@@ -59,7 +59,7 @@
     {
       "reference": "757936bd-1d85-4ff0-8b63-359fdfeb13fb",
       "name": "Coffee Maker",
-      "type": "coffee_machine",
+      "type": "coffee-machine",
       "wattage": 1500,
       "standByWattage": 5.0
     },
@@ -67,7 +67,7 @@
       "reference": "446bec9d-f731-4f29-b2bd-40da24a63d72",
       "name": "Toaster",
       "type": "toaster",
-      "wattage": 30,
+      "wattage": 1100,
       "standByWattage": 3.0
     },
     {
@@ -82,6 +82,13 @@
       "name": "Smart Oven",
       "type": "oven",
       "wattage": 800,
+      "standByWattage": 4.0
+    },
+    {
+      "reference": "d0dbcfc2-9a09-486e-81b0-9544964e8b09",
+      "name": "Stove",
+      "type": "stove",
+      "wattage": 1000,
       "standByWattage": 4.0
     },
     {

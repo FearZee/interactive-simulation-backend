@@ -1,0 +1,244 @@
+{
+  "schedule": {
+    "0": {
+      "devices": [
+      ]
+    },
+    "1": {
+      "devices": [
+      ]
+    },
+    "2": {
+      "devices": [
+      ]
+    },
+    "3": {
+      "devices": [
+      ]
+    },
+    "4": {
+      "devices": [
+      ]
+    },
+    "5": {
+      "devices": [
+      ]
+    },
+    "6": {
+      "devices": [
+      ]
+    },
+    "7": {
+      "devices": [
+        {
+          "base_device_reference": "757936bd-1d85-4ff0-8b63-359fdfeb13fb",
+          "duration": 5
+        },
+        {
+          "base_device_reference": "446bec9d-f731-4f29-b2bd-40da24a63d72",
+          "duration": 15
+        }
+      ]
+    },
+    "8": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 60
+        }
+      ]
+    },
+    "9": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "757936bd-1d85-4ff0-8b63-359fdfeb13fb",
+          "duration": 5
+        }
+      ]
+    },
+    "10": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 60
+        }
+      ]
+    },
+    "11": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 60
+        }
+      ]
+    },
+    "12": {
+      "devices": [
+        {
+          "base_device_reference": "e78a33db-411f-422b-a89f-76edc320e53f",
+          "duration": 20
+        },
+        {
+          "base_device_reference": "d0dbcfc2-9a09-486e-81b0-9544964e8b09",
+          "duration": 30
+        }
+      ]
+    },
+    "13": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 30
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 30
+        }
+      ]
+    },
+    "14": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 60
+        }
+      ]
+    },
+    "15": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 60
+        }
+      ]
+    },
+    "16": {
+      "devices": [
+        {
+          "base_device_reference": "e5c28de6-bdbe-4ef8-abca-58b4da65586e",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 60
+        }
+      ]
+    },
+    "17": {
+      "devices": [
+        {
+          "base_device_reference": "e510cfe3-d962-4053-9887-6d8af08cb29f",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "73f103ac-c569-4f7f-b2da-a3e16403c05a",
+          "duration": 60
+        }
+      ]
+    },
+    "18": {
+      "devices": [
+        {
+          "base_device_reference": "e510cfe3-d962-4053-9887-6d8af08cb29f",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "73f103ac-c569-4f7f-b2da-a3e16403c05a",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "e78a33db-411f-422b-a89f-76edc320e53f",
+          "duration": 30
+        },
+        {
+          "base_device_reference": "d0dbcfc2-9a09-486e-81b0-9544964e8b09",
+          "duration": 30
+        }
+      ]
+    },
+    "19": {
+      "devices": [
+        {
+          "base_device_reference": "0ed2594d-4df8-4568-be04-47df43e5dd11",
+          "duration": 30
+        }
+      ]
+    },
+    "20": {
+      "devices": [
+        {
+          "base_device_reference": "e510cfe3-d962-4053-9887-6d8af08cb29f",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "f60d865c-5ea4-4b5f-b226-ddc58910a932",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "1ddbac90-52ec-4c20-9538-ca5b628c522a",
+          "duration": 45
+        },
+        {
+          "base_device_reference": "7df904e0-4f80-4191-9397-d59e9769e21a",
+          "duration": 45
+        }
+      ]
+    },
+    "21": {
+      "devices": [
+        {
+          "base_device_reference": "e510cfe3-d962-4053-9887-6d8af08cb29f",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "f60d865c-5ea4-4b5f-b226-ddc58910a932",
+          "duration": 60
+        }
+      ]
+    },
+    "22": {
+      "devices": [
+        {
+          "base_device_reference": "e510cfe3-d962-4053-9887-6d8af08cb29f",
+          "duration": 60
+        },
+        {
+          "base_device_reference": "f60d865c-5ea4-4b5f-b226-ddc58910a932",
+          "duration": 60
+        }
+      ]
+    },
+    "23": {
+      "devices": [
+      ]
+    }
+  }
+}

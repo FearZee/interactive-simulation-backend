@@ -48,5 +48,5 @@ class Device(Base):
     base_device = relationship("BaseDevice", back_populates="device")
     base_device_reference = Column(UUID, ForeignKey("base_devices.reference"))
 
-    schedule = relationship("Schedule", back_populates="device")
+    schedule = relationship("Schedule", back_populates="devices")
     schedule_reference = Column(UUID, ForeignKey("schedules.reference"))
