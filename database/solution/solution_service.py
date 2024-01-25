@@ -14,7 +14,12 @@ from database.schedule.schedule_service import (
     get_schedule_by_simulation_with_devices,
 )
 from database.simulation.simulation_model import Simulation
+from database.weather.weather_model import Weather
 from database.weather.weather_service import get_weather_by_reference
+
+
+# TODO: add consumers or controllable devices that need to be used, but time can vary (e.g washing machine, dishwasher, etc.)
+# these devices should have a latest time_slot
 
 
 def calculate_solution(db: Session, simulation_reference: uuid.UUID):
@@ -63,88 +68,6 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
         schedule,
         battery.capacity,
     )
-
-    # compare schedule hour with pv output hour
-    # for hour in range(24):
-    #     found_device = [
-    #         device for device in schedule.devices if device.time_slot == hour
-    #     ]
-    #     if not found_device:
-    #         ic({f"{hour}": 0})
-    #         heat_factor -= TEMPERATURE_DIFF_FACTOR
-    #         continue
-    #     temp_solution = {}
-    #
-    #     hourly_usage = 0
-    #
-    #     for device in found_device:
-    #         hourly_usage += device.base_device.wattage
-    #
-    #     pv_output_hourly = pv_output.energy.get(f"{hour}")
-    #     market_price_hourly = market_price.price.get(f"{hour}")
-    #
-    #     energy = pv_output_hourly - hourly_usage / 1000
-    #     heat_change, heatpump_usage = use_heat_pump(
-    #         heat_factor, energy, heatpump.wattage / 1000, current_storage
-    #     )
-    #     if heat_change:
-    #         heat_factor += heat_change
-    #         energy -= heatpump_usage
-    #         temp_solution["HEATPUMP"] = {
-    #             "energy": heatpump_usage,
-    #         }
-    #
-    #     if energy > 0:
-    #         # charge battery
-    #         use_unused_pv_energy(hour, weather, large_consumers, energy)
-    #         charge, remaining_unused = charge_battery(
-    #             current_storage, energy, battery.capacity
-    #         )
-    #         temp_solution["BATTERY"] = {
-    #             "energy": energy - remaining_unused,
-    #             "type": "charge",
-    #         }
-    #         current_storage = charge
-    #         solutionSchedule[hour] = temp_solution
-    #         # think about what to do with energy
-    #         pass
-    #     else:
-    #         battery_state = current_storage / battery.capacity
-    #         # keep at least 30 % battery charge
-    #         if battery_state < 0.3:
-    #             # buy from market
-    #             solutionSchedule[hour] = {"MARKET": abs(energy)}
-    #             # ic({f"BUY FROM MARKET: {hour}": market_price_hourly})
-    #             pass
-    #         else:
-    #             charge, remaining_unused = discharge_battery(current_storage, energy)
-    #             current_storage = charge
-    #             temp_solution = {}
-    #             temp_solution["BATTERY"] = {
-    #                 "energy": abs(energy) - remaining_unused,
-    #                 "type": "discharge",
-    #             }
-    #             if remaining_unused:
-    #                 temp_solution["MARKET"] = remaining_unused
-    #             # ic({f"USE BATTERY: {hour}": current_storage})
-    #             # ic({f"LEFT: {hour}": remaining_unused})
-    #             solutionSchedule[hour] = temp_solution
-    #
-    #             # use battery
-    #             pass
-    #         # use battery or buy from market
-    #         # if battery is empty buy from market
-    #         # if battery is nearly full use it
-    #         pass
-
-    # ic({f"USAGE: {hour}": hourly_usage})
-    # ic({f"PV: {hour}": pv_output_hourly})
-    # ic({f"MARKET PRICE: {hour}": market_price_hourly})
-
-    # for device in found_device:
-    #     ic(device.base_device.wattage)
-
-    # usage = found_device.usage
 
     # if schedule.hour == pv_output.hour
     # calculate energy balance for each hour
@@ -247,7 +170,12 @@ def use_large_consumers(heat_factor, unused_energy):
     heatpump = filter(lambda device: device.type == "heat-pump", large_consumers)
     heatpump = list(heatpump)[0]
 
-    may_use_heatpump = heat_factor < 1.5  # TODO: my include hour on this condition
+    wallbox = filter(lambda device: device.type == "wallbox", large_consumers)
+    wallbox = list(wallbox)[0]
+
+    may_use_heatpump = (
+        heat_factor < 1.5
+    )  # TODO: may include hour on this condition and weather
     # which large consumer is useful?
     # use heat pump when heat factor is low
     if may_use_heatpump:
@@ -285,7 +213,8 @@ def energy_manager(
     battery_capacity,
 ):
     for hour in range(24):
-        logger.info(f"Hour: {hour}: {heat_factor}")
+        logger.info(f"HEAT: {hour}: {heat_factor}")
+        logger.info(f"BATTERY: {hour}: {battery_storage}")
         found_device = [
             device for device in schedule.devices if device.time_slot == hour
         ]
@@ -313,10 +242,16 @@ def energy_manager(
                 )
                 heat_factor = heat_change
 
-                charge, remaining_unused = charge_battery(
-                    battery_storage, current_pv_output - hourly_usage, battery_capacity
-                )
-                battery_storage = charge
+                if unused_energy > 0:
+                    charge, remaining_unused = charge_battery(
+                        battery_storage, unused_energy, battery_capacity
+                    )
+                    battery_storage = charge
+
+                # charge, remaining_unused = charge_battery(
+                #     battery_storage, current_pv_output - hourly_usage, battery_capacity
+                # )
+                # battery_storage = charge
             else:
                 if current_market_price < avg_price:
                     logger.info(current_market_price)
@@ -374,4 +309,6 @@ def energy_manager(
     # charge battery
 
     # if energy is negative than there is not enough energy
+
+    # TODO return each hour with energy usage
     pass
