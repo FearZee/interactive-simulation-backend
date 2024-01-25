@@ -1,7 +1,7 @@
 import enum
 import uuid
 
-from sqlalchemy import Column, UUID, Integer, ForeignKey, Float, String, Enum
+from sqlalchemy import Column, UUID, Integer, ForeignKey, Float, String, Enum, Boolean
 from sqlalchemy.orm import relationship
 
 from database.database import Base
@@ -21,6 +21,7 @@ class BaseDevice(Base):
     name = Column(String)
     type = Column(String)
     wattage = Column(Float)
+    controllable = Column(Boolean, default=False)
 
     device = relationship("Device", back_populates="base_device")
 

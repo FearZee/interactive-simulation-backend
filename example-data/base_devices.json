@@ -124,14 +124,16 @@
       "name": "Heat Pump",
       "type": "heat-pump",
       "wattage": 650,
-      "standByWattage": 11
+      "standByWattage": 11,
+      "controllable": true
     },
     {
       "reference": "f79d2d63-f74d-4605-9d3b-230aeeacd47f",
       "name": "Heating Rod",
       "type": "heating-rod",
       "wattage": 1500,
-      "standByWattage": 5
+      "standByWattage": 5,
+      "controllable": true
     },
     {
       "reference": "3ae499a6-4dac-48f6-85d8-62c2f4fbc3e8",
@@ -146,6 +148,14 @@
       "type": "hair-dryer",
       "wattage": 1500,
       "standByWattage": 0
+    },
+    {
+      "reference": "ac76b6fa-2467-482a-bff8-79f27e0095fd",
+      "name": "Wallbox",
+      "type": "wallbox",
+      "wattage": 7400,
+      "standByWattage": 0,
+      "controllable": true
     }
   ]
 }

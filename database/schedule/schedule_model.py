@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, UUID, Integer, ForeignKey
+from sqlalchemy import Column, UUID, Integer, ForeignKey, Float
 from sqlalchemy.orm import relationship
 
 from database.database import Base
@@ -17,6 +17,7 @@ class Schedule(Base):
         index=True,
     )
     day = Column(Integer)
+    heat_factor = Column(Float)
 
     simulation = relationship("Simulation", back_populates="schedule")
     simulation_reference = Column(UUID, ForeignKey("simulations.reference"))

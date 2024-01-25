@@ -43,6 +43,7 @@ class BaseDeviceScheme(BaseModel):
     name: str
     type: str
     wattage: float
+    controllable: bool
 
     class Config:
         from_attributes = True
@@ -52,6 +53,7 @@ class CreateBaseDevice(BaseModel):
     name: str
     type: str
     wattage: int
+    controllable: bool
 
     class Config:
         from_attributes = True

@@ -13,8 +13,12 @@ from database.schedule.schedule_scheme import CreateScheduleScheme
 from database.simulation.simulation_service import get_simulation_by_reference
 
 
-def create_schedule(db: Session, day: int, simulation_reference: uuid.UUID):
-    db_schedule = Schedule(day=day, simulation_reference=simulation_reference)
+def create_schedule(
+    db: Session, day: int, simulation_reference: uuid.UUID, heat_factor: float = 0.8
+):
+    db_schedule = Schedule(
+        day=day, simulation_reference=simulation_reference, heat_factor=heat_factor
+    )
     db.add(db_schedule)
     db.commit()
     db.refresh(db_schedule)
@@ -72,7 +76,10 @@ def logic(db: Session, simulation_reference: uuid.UUID):
         return found_schedule
 
     db_schedule = create_schedule(
-        db=db, day=simulation.day, simulation_reference=simulation.reference
+        db=db,
+        day=simulation.day,
+        simulation_reference=simulation.reference,
+        heat_factor=example_schedule_data.get("heatFactor"),
     )
 
     for schedule_hour in example_schedule_data.get("schedule").items():

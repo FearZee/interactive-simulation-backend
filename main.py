@@ -68,6 +68,7 @@ def init_db(db: Session):
                 name=device.get("name"),
                 type=device.get("type"),
                 wattage=device.get("wattage"),
+                controllable=device.get("controllable"),
             )
             db.add(db_device)
             db.commit()
