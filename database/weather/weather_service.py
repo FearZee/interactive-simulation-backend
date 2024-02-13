@@ -26,7 +26,10 @@ def get_weather_by_reference(db: Session, reference: uuid.UUID):
 def create_weather(db: Session, day: int):
     weather = {}
     for hour in range(24):
-        (wind_speed, cloud_cover) = simulate_hourly_weather(hour, day)
+        (wind_speed, _) = simulate_hourly_weather(hour, day)
+        cloud_cover = calculate_cloud_cover(
+            weather[hour - 1]["cloud"] if hour > 0 else None
+        )
         sun = get_sunlight_intensity(hour, day, cloud_cover)
         temperature = calculate_temperature_hourly(
             day, sun, (weather[hour - 1]["temperature"] if hour > 0 else None)
@@ -60,6 +63,16 @@ def simulate_hourly_weather(hour: int, day: int = 1):
     )
 
     return wind_speed, random.uniform(0, MAX_CLOUD_COVER)
+
+
+def calculate_cloud_cover(previous_cloud_cover):
+    previous_cloud_cover = (
+        previous_cloud_cover
+        if previous_cloud_cover is not None
+        else random.uniform(0, 1) * MAX_CLOUD_COVER
+    )
+    new_cloud_cover = 0.2 * previous_cloud_cover + 0.8 * random.uniform(0, 1)
+    return max(0, min(1, new_cloud_cover))
 
 
 def get_sunlight_intensity(hour, day, cloud_cover):

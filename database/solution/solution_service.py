@@ -50,41 +50,56 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
         db=db, simulation_reference=simulation_reference, day=simulation.day
     )
 
-    large_consumers = db.query(BaseDevice).filter(BaseDevice.controllable == True).all()
-    heatpump = filter(lambda device: device.type == "heat-pump", large_consumers)
-    heatpump = list(heatpump)[0]
     solutionSchedule = {}
 
     heat_factor = schedule.heat_factor
 
-    logger.info(sum(pv_output.energy.values()))
+    for hour in range(24):
+        temp_solution = {}
+        heat_factor -= TEMPERATURE_DIFF_FACTOR
+        found_device = [
+            device for device in schedule.devices if device.time_slot == hour
+        ]
+        usage_hour = sum(
+            (device.base_device.wattage / 1000) * (device.duration / 60)
+            for device in found_device
+        )
+        # print(hour, usage_hour)
+        pv_output_hour = pv_output.energy.get(str(hour))
+        energy = pv_output_hour - usage_hour
+        new_heat_factor, device, energy_used = test_large_consumers(
+            energy, hour, heat_factor
+        )
+        temp_solution.update(device)
+        energy = energy_used
 
-    energy_manager(
-        large_consumers,
-        battery.capacity * battery.charge,
-        heat_factor,
-        pv_output,
-        market_price,
-        schedule,
-        battery.capacity,
-    )
+        print(hour, energy)
+        print(heat_factor)
+        logger.info(temp_solution)
+        if energy > 0:
+            # if pv output is greater than usage, charge battery
+            charge, remaining_unused = charge_battery(
+                current_storage, energy, battery.capacity
+            )
+            current_storage = charge
+            used_for_battery = energy - remaining_unused
+            if used_for_battery > 0:
+                temp_solution["battery"] = {
+                    "duration": 60,
+                    "usage": used_for_battery,
+                }
 
-    # if schedule.hour == pv_output.hour
-    # calculate energy balance for each hour
-    # do i need to discharge battery or buy from market
-    # can i charge battery from pv or should i use large consumers?
-    # use large consumers when energy price is low and needed
-    # use battery when energy price is high and needed
-    # heat_factor -= TEMPERATURE_DIFF_FACTOR
-    # pass
+            if remaining_unused > 0:
+                # Sell remaining energy for now
+                temp_solution["market"] = {"duration": 60, "usage": remaining_unused}
+        else:
+            # if pv output is less than usage, discharge battery
+            charge, remaining_unused = discharge_battery(current_storage, energy)
+            current_storage = charge
+        heat_factor = new_heat_factor
+        solutionSchedule[hour] = temp_solution
 
-    # calculate energy balance for each hour do i need to discharge battery or buy from market
-    # can i charge battery from pv or should i use large consumers?
-    # use large consumers when energy price is low and needed
-    # use battery when energy price is high and needed
     return solutionSchedule
-
-    pass
 
 
 def discharge_battery(charge, discharge_amount):
@@ -128,9 +143,9 @@ HEAT_PUMP_EFFICIENCY = 0.2
 
 def use_heat_pump(current_heat_factor, energy, heatpump_wattage):
     # if tempfactor is below lower limit use heat pump
+    mode = 1
     if current_heat_factor < TEMP_LOWER_LIMIT:
         # use heat pump based on energy choose mode
-        mode = 1
         if energy == 0:
             mode = 0.5
         elif energy > 0:
@@ -149,11 +164,16 @@ def use_heat_pump(current_heat_factor, energy, heatpump_wattage):
             mode = 1
         elif energy >= heatpump_wattage / 2:
             mode = 0.5
+        elif energy < heatpump_wattage / 4:
+            return None, None, None
 
         while HEAT_PUMP_EFFICIENCY * mode + current_heat_factor > TEMP_UPPER_LIMIT:
             mode -= 0.25
 
-    return HEAT_PUMP_EFFICIENCY * mode, heatpump_wattage * mode
+        if heatpump_wattage * mode > energy:
+            return None, None, None
+
+    return HEAT_PUMP_EFFICIENCY * mode, heatpump_wattage * mode, mode
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -162,6 +182,35 @@ logger = logging.getLogger(__name__)
 
 def calculate_hourly_usage(devices):
     return sum(device.base_device.wattage / 1000 for device in devices)
+
+
+def test_large_consumers(remaining_energy, hour, heat_factor):
+    large_consumers = get_large_consumers()
+    heatpump = filter(lambda device: device.type == "heat-pump", large_consumers)
+    heatpump = list(heatpump)[0]
+
+    wallbox = filter(lambda device: device.type == "wallbox", large_consumers)
+    wallbox = list(wallbox)[0]
+
+    heat_change = 0
+    device = {}
+    energy_usage = 0
+
+    if heat_factor < 1.5:
+        logger.info("Use heat pump")
+        heat, wattage, duration = use_heat_pump(
+            heat_factor, remaining_energy, heatpump.wattage / 1000
+        )
+        if heat:
+            heat_change = heat
+            logger.info(f"HEAT: {heat}")
+            logger.info(f"WATTAGE: {wattage}")
+            device["heatpump"] = {"duration": duration * 60, "usage": wattage}
+            energy_usage += wattage
+    if hour <= 6 or hour >= 20:
+        logger.info("Use wallbox")
+
+    return heat_factor + heat_change, device, remaining_energy - energy_usage
 
 
 def use_large_consumers(heat_factor, unused_energy):
