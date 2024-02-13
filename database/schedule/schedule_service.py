@@ -1,8 +1,6 @@
 import json
 import uuid
 
-from icecream import icecream, ic
-from sqlalchemy import desc, asc
 from sqlalchemy.orm import Session, joinedload
 
 from database.device.device_model import TypeEnum, Device

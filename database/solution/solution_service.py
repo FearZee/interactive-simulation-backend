@@ -1,4 +1,3 @@
-import logging
 import uuid
 
 from sqlalchemy.orm import Session, scoped_session, sessionmaker

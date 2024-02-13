@@ -1,7 +1,6 @@
 import random
 import uuid
 
-from icecream import ic
 from sqlalchemy.orm import Session
 
 from database.weather.weather_service import get_weather_by_reference

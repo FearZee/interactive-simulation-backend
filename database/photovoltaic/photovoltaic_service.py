@@ -1,13 +1,11 @@
 import math
 import uuid
 
-from icecream import ic
 from sqlalchemy.orm import joinedload
 
 from database.weather.weather_model import Weather
 from .photovoltaic_model import Photovoltaic, EnergyOutput
 from .photovoltaic_scheme import CreatePhotovoltaicScheme
-from ..simulation.simulation_model import Simulation
 
 
 def create_photovoltaic(db, photovoltaic: CreatePhotovoltaicScheme):

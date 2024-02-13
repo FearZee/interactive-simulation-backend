@@ -1,7 +1,5 @@
 import math
-
 import random
-
 import uuid
 
 from sqlalchemy.orm import Session

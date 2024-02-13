@@ -1,7 +1,6 @@
 import random
 import uuid
 
-from icecream import ic
 from sqlalchemy.orm import Session
 
 from .simulation_model import Simulation
