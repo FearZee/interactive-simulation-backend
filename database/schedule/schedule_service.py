@@ -9,8 +9,7 @@ from database.device.device_model import TypeEnum, Device
 from database.device.device_scheme import CreateDeviceScheme
 from database.device.device_service import create_device
 from database.schedule.schedule_model import Schedule
-from database.schedule.schedule_scheme import CreateScheduleScheme
-from database.simulation.simulation_service import get_simulation_by_reference
+from database.simulation.simulation_model import Simulation
 
 
 def create_schedule(
@@ -64,9 +63,7 @@ def logic(db: Session, simulation_reference: uuid.UUID):
     with open("example-data/example-schedule.json", "r") as json_file:
         example_schedule_data = json.load(json_file)
 
-    simulation = get_simulation_by_reference(
-        db=db, simulation_reference=simulation_reference
-    )
+    simulation = db.query(Simulation).filter(Simulation.reference == simulation_reference).first()
 
     found_schedule = get_schedule_by_simulation(
         db=db, simulation_reference=simulation_reference, day=simulation.day

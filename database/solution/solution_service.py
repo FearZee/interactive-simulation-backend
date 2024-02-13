@@ -1,7 +1,6 @@
 import logging
 import uuid
 
-from icecream import ic
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
 
 from database.battery.battery_service import get_battery_by_reference
@@ -10,16 +9,10 @@ from database.device.device_model import BaseDevice
 from database.energy_market.energy_market_service import get_energy_market_by_reference
 from database.photovoltaic.photovoltaic_service import get_pv_output_by_reference
 from database.schedule.schedule_service import (
-    get_schedule_by_simulation,
     get_schedule_by_simulation_with_devices,
 )
 from database.simulation.simulation_model import Simulation
-from database.weather.weather_model import Weather
 from database.weather.weather_service import get_weather_by_reference
-
-
-# TODO: add consumers or controllable devices that need to be used, but time can vary (e.g washing machine, dishwasher, etc.)
-# these devices should have a latest time_slot
 
 
 def calculate_solution(db: Session, simulation_reference: uuid.UUID):
@@ -28,24 +21,24 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
         .filter(Simulation.reference == simulation_reference)
         .first()
     )
-    # get pv output
+
     pv_output = get_pv_output_by_reference(
         db=db,
         photovoltaic_reference=simulation.photovoltaic_reference,
         day=simulation.day,
     )
-    # get market price
+
     market_price = get_energy_market_by_reference(
         db=db, reference=simulation.energy_market_reference
     )
-    # get battery
+
     battery = get_battery_by_reference(
         db=db, battery_reference=simulation.battery_reference
     )
     current_storage = battery.capacity * battery.charge
-    # get weather
+
     weather = get_weather_by_reference(db=db, reference=simulation.weather_reference)
-    # get schedule
+
     schedule = get_schedule_by_simulation_with_devices(
         db=db, simulation_reference=simulation_reference, day=simulation.day
     )
@@ -53,29 +46,30 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
     solutionSchedule = {}
 
     heat_factor = schedule.heat_factor
+    wanted_charge = 10
 
     for hour in range(24):
         temp_solution = {}
         heat_factor -= TEMPERATURE_DIFF_FACTOR
+
         found_device = [
             device for device in schedule.devices if device.time_slot == hour
         ]
+
         usage_hour = sum(
             (device.base_device.wattage / 1000) * (device.duration / 60)
             for device in found_device
         )
-        # print(hour, usage_hour)
+
         pv_output_hour = pv_output.energy.get(str(hour))
         energy = pv_output_hour - usage_hour
-        new_heat_factor, device, energy_used = test_large_consumers(
-            energy, hour, heat_factor
+        new_heat_factor, device, energy_used, car_charge = use_large_consumers(
+            energy, hour, heat_factor, market_price.price, wanted_charge
         )
         temp_solution.update(device)
         energy = energy_used
+        wanted_charge = car_charge
 
-        print(hour, energy)
-        print(heat_factor)
-        logger.info(temp_solution)
         if energy > 0:
             # if pv output is greater than usage, charge battery
             charge, remaining_unused = charge_battery(
@@ -129,15 +123,12 @@ def charge_battery(charge, charge_amount, capacity):
         return charge, excess_charge
     else:
         return charge + charge_amount, 0
-        # Charge the battery within its remaining capacity
-        # return self.update_charge(charge_amount)
 
 
 TEMP_FACTOR = 1
 TEMPERATURE_DIFF_FACTOR = 0.01
 TEMP_LOWER_LIMIT = 0.4
 TEMP_UPPER_LIMIT = 1.8
-
 HEAT_PUMP_EFFICIENCY = 0.2
 
 
@@ -176,15 +167,35 @@ def use_heat_pump(current_heat_factor, energy, heatpump_wattage):
     return HEAT_PUMP_EFFICIENCY * mode, heatpump_wattage * mode, mode
 
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+WALLBOX_MAX = 11
+
+
+def use_wallbox(wanted_charge, energy, market_prices, wattage, hour):
+    modes = [1, 0.75, 0.5, 0.25]
+    if wanted_charge <= 0:
+        return None, None, None
+
+    if energy > 0:
+        # use energy
+        pass
+
+    avg_market_price = sum(market_prices.values()) / len(market_prices)
+    if market_prices.get(f"{hour}") < avg_market_price:
+        if wanted_charge >= WALLBOX_MAX:
+            # charge at max for full hour
+            return WALLBOX_MAX, wattage, 60
+        else:
+            closest_mode = min(modes, key=lambda x: abs(WALLBOX_MAX * x - wanted_charge))
+            return WALLBOX_MAX * closest_mode, wattage * closest_mode, 60 * closest_mode
+
+    return None, None, None
 
 
 def calculate_hourly_usage(devices):
     return sum(device.base_device.wattage / 1000 for device in devices)
 
 
-def test_large_consumers(remaining_energy, hour, heat_factor):
+def use_large_consumers(remaining_energy, hour, heat_factor, market_price, wanted_charge):
     large_consumers = get_large_consumers()
     heatpump = filter(lambda device: device.type == "heat-pump", large_consumers)
     heatpump = list(heatpump)[0]
@@ -197,51 +208,25 @@ def test_large_consumers(remaining_energy, hour, heat_factor):
     energy_usage = 0
 
     if heat_factor < 1.5:
-        logger.info("Use heat pump")
         heat, wattage, duration = use_heat_pump(
             heat_factor, remaining_energy, heatpump.wattage / 1000
         )
         if heat:
             heat_change = heat
-            logger.info(f"HEAT: {heat}")
-            logger.info(f"WATTAGE: {wattage}")
             device["heatpump"] = {"duration": duration * 60, "usage": wattage}
             energy_usage += wattage
     if hour <= 6 or hour >= 20:
-        logger.info("Use wallbox")
+        car_charge, wattage, duration = use_wallbox(wanted_charge, remaining_energy, market_price,
+                                                    wallbox.wattage / 1000, hour)
+        if car_charge:
+            wanted_charge -= car_charge
+            device["wallbox"] = {"duration": duration, "usage": wattage}
 
-    return heat_factor + heat_change, device, remaining_energy - energy_usage
-
-
-def use_large_consumers(heat_factor, unused_energy):
-    logger.info("Use large consumers")
-    large_consumers = get_large_consumers()
-    heatpump = filter(lambda device: device.type == "heat-pump", large_consumers)
-    heatpump = list(heatpump)[0]
-
-    wallbox = filter(lambda device: device.type == "wallbox", large_consumers)
-    wallbox = list(wallbox)[0]
-
-    may_use_heatpump = (
-        heat_factor < 1.5
-    )  # TODO: may include hour on this condition and weather
-    # which large consumer is useful?
-    # use heat pump when heat factor is low
-    if may_use_heatpump:
-        heat_change, heatpump_usage = use_heat_pump(
-            heat_factor, unused_energy, heatpump.wattage / 1000
-        )
-        heat_factor += heat_change
-        unused_energy -= heatpump_usage
-
-    # use wallbox when car charge is low
-    # use charge battery when battery is low
-
-    return heat_factor, unused_energy
+    return heat_factor + heat_change, device, remaining_energy - energy_usage, wanted_charge
 
 
 def buy_from_market():
-    logger.info("Buy from market")
+    print("Buy from market")
 
 
 Session = scoped_session(sessionmaker(bind=engine))
@@ -250,114 +235,3 @@ Session = scoped_session(sessionmaker(bind=engine))
 def get_large_consumers():
     with Session() as session:
         return session.query(BaseDevice).filter(BaseDevice.controllable == True).all()
-
-
-def energy_manager(
-    large_consumers,
-    battery_storage,
-    heat_factor,
-    pv_output,
-    market_price,
-    schedule,
-    battery_capacity,
-):
-    for hour in range(24):
-        logger.info(f"HEAT: {hour}: {heat_factor}")
-        logger.info(f"BATTERY: {hour}: {battery_storage}")
-        found_device = [
-            device for device in schedule.devices if device.time_slot == hour
-        ]
-        future_device = [
-            device for device in schedule.devices if device.time_slot == hour + 1
-        ]
-
-        heat_factor -= TEMPERATURE_DIFF_FACTOR
-
-        hourly_usage = calculate_hourly_usage(found_device)
-        future_hourly_usage = calculate_hourly_usage(future_device)
-
-        current_pv_output = pv_output.energy.get(str(hour))
-        current_market_price = market_price.price.get(str(hour))
-        future_pv_output = pv_output.energy.get(str(hour + 1))
-        future_market_price = market_price.price.get(str(hour + 1))
-        avg_price = sum(market_price.price.values()) / 24
-
-        unused_energy = current_pv_output - hourly_usage
-
-        if current_pv_output > hourly_usage:
-            if future_pv_output > future_hourly_usage:
-                heat_change, unused_energy = use_large_consumers(
-                    heat_factor, unused_energy
-                )
-                heat_factor = heat_change
-
-                if unused_energy > 0:
-                    charge, remaining_unused = charge_battery(
-                        battery_storage, unused_energy, battery_capacity
-                    )
-                    battery_storage = charge
-
-                # charge, remaining_unused = charge_battery(
-                #     battery_storage, current_pv_output - hourly_usage, battery_capacity
-                # )
-                # battery_storage = charge
-            else:
-                if current_market_price < avg_price:
-                    logger.info(current_market_price)
-                    heat_change, unused_energy = use_large_consumers(
-                        heat_factor, unused_energy
-                    )
-                    heat_factor = heat_change
-
-                charge, remaining_unused = charge_battery(
-                    battery_storage, current_pv_output - hourly_usage, battery_capacity
-                )
-                battery_storage = charge
-
-        elif current_pv_output < hourly_usage:
-            if future_pv_output > future_hourly_usage:
-                if current_market_price < avg_price:
-                    # use_large_consumers()
-                    logger.info(current_market_price)
-                    logger.info("MAYBE Use large consumers")
-
-                charge, remaining_unused = discharge_battery(
-                    battery_storage, current_pv_output - hourly_usage
-                )
-                battery_storage = charge
-            else:
-                if current_market_price < avg_price:
-                    buy_from_market()
-                else:
-                    charge, remaining_unused = discharge_battery(
-                        battery_storage, current_pv_output - hourly_usage
-                    )
-                    battery_storage = charge
-
-        elif current_market_price < avg_price:
-            if current_pv_output > hourly_usage:
-                charge, remaining_unused = charge_battery(
-                    battery_storage, current_pv_output - hourly_usage, battery_capacity
-                )
-                battery_storage = charge
-            else:
-                logger.info(current_market_price)
-                heat_change, unused_energy = use_large_consumers(
-                    heat_factor, unused_energy
-                )
-                heat_factor = heat_change
-
-        # get heat pump from large consumers
-    # get wallbox from large consumers
-
-    # if energy is positive thant there is unused energy:
-    # if energy price is low use large consumers and charge battery
-    # when heat factor is low use heat pump
-    # when heat factor is high and wallbox is usable use wallbox
-    # when battery is low charge battery
-    # charge battery
-
-    # if energy is negative than there is not enough energy
-
-    # TODO return each hour with energy usage
-    pass

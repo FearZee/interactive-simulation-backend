@@ -153,7 +153,7 @@
       "reference": "ac76b6fa-2467-482a-bff8-79f27e0095fd",
       "name": "Wallbox",
       "type": "wallbox",
-      "wattage": 7400,
+      "wattage": 11000,
       "standByWattage": 0,
       "controllable": true
     }

@@ -2,6 +2,7 @@ import uuid
 
 from fastapi import APIRouter, Depends
 
+from database.schedule.schedule_service import logic
 from database.simulation.simulation_scheme import SimulationResponseScheme
 from database.simulation.simulation_service import (
     get_simulation_by_reference,

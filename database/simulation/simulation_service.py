@@ -13,6 +13,7 @@ from ..photovoltaic.photovoltaic_service import (
     create_photovoltaic,
     calculate_solar_output_for_day,
 )
+from ..schedule.schedule_service import logic
 from ..weather.weather_service import create_weather
 
 
@@ -50,5 +51,6 @@ def create_simulation(db: Session):
     db_energy_out = calculate_solar_output_for_day(
         db=db, day=db_simulation.day, photovoltaic_reference=db_photovoltaic.reference
     )
+    logic(db=db, simulation_reference=db_simulation.reference)
 
     return db_simulation
