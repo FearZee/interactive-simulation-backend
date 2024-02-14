@@ -53,3 +53,10 @@ def create_simulation(db: Session):
     logic(db=db, simulation_reference=db_simulation.reference)
 
     return db_simulation
+
+
+def get_complete_usage(db: Session, simulation_reference: uuid.UUID):
+    simulation = get_simulation_by_reference(
+        db=db, simulation_reference=simulation_reference
+    )
+    return simulation

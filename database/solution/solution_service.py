@@ -47,6 +47,8 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
     heat_factor = schedule.heat_factor
     wanted_charge = 10
 
+    complete_schedule = {}
+
     for hour in range(24):
         temp_solution = {}
         heat_factor -= TEMPERATURE_DIFF_FACTOR
@@ -54,6 +56,15 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
         found_device = [
             device for device in schedule.devices if device.time_slot == hour
         ]
+
+        temp_schedule = {}
+
+        for d in found_device:
+            temp_schedule[d.base_device.name] = {
+                "duration": d.duration,
+                "usage": d.base_device.wattage / 1000 * d.duration / 60,
+            }
+        complete_schedule[hour] = temp_schedule
 
         usage_hour = sum(
             (device.base_device.wattage / 1000) * (device.duration / 60)
@@ -92,7 +103,30 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
         heat_factor = new_heat_factor
         solutionSchedule[hour] = temp_solution
 
+    merged_dict = recursive_merge(complete_schedule, solutionSchedule)
+
+    schedule.solution = solutionSchedule
+    schedule.complete = merged_dict
+    db.commit()
+
     return solutionSchedule
+
+
+def recursive_merge(dict1, dict2):
+    merged_dict = dict1.copy()
+    for key, value in dict2.items():
+        if key in dict1 and isinstance(value, dict) and isinstance(dict1[key], dict):
+            merged_dict[key] = recursive_merge(dict1[key], value)
+        else:
+            if (
+                key in merged_dict
+                and isinstance(merged_dict[key], dict)
+                and isinstance(value, dict)
+            ):
+                merged_dict[key].update(value)
+            else:
+                merged_dict[key] = value
+    return merged_dict
 
 
 def discharge_battery(charge, discharge_amount):
@@ -184,7 +218,9 @@ def use_wallbox(wanted_charge, energy, market_prices, wattage, hour):
             # charge at max for full hour
             return WALLBOX_MAX, wattage, 60
         else:
-            closest_mode = min(modes, key=lambda x: abs(WALLBOX_MAX * x - wanted_charge))
+            closest_mode = min(
+                modes, key=lambda x: abs(WALLBOX_MAX * x - wanted_charge)
+            )
             return WALLBOX_MAX * closest_mode, wattage * closest_mode, 60 * closest_mode
 
     return None, None, None
@@ -194,7 +230,9 @@ def calculate_hourly_usage(devices):
     return sum(device.base_device.wattage / 1000 for device in devices)
 
 
-def use_large_consumers(remaining_energy, hour, heat_factor, market_price, wanted_charge):
+def use_large_consumers(
+    remaining_energy, hour, heat_factor, market_price, wanted_charge
+):
     large_consumers = get_large_consumers()
     heatpump = filter(lambda device: device.type == "heat-pump", large_consumers)
     heatpump = list(heatpump)[0]
@@ -215,13 +253,19 @@ def use_large_consumers(remaining_energy, hour, heat_factor, market_price, wante
             device["heatpump"] = {"duration": duration * 60, "usage": wattage}
             energy_usage += wattage
     if hour <= 6 or hour >= 20:
-        car_charge, wattage, duration = use_wallbox(wanted_charge, remaining_energy, market_price,
-                                                    wallbox.wattage / 1000, hour)
+        car_charge, wattage, duration = use_wallbox(
+            wanted_charge, remaining_energy, market_price, wallbox.wattage / 1000, hour
+        )
         if car_charge:
             wanted_charge -= car_charge
             device["wallbox"] = {"duration": duration, "usage": wattage}
 
-    return heat_factor + heat_change, device, remaining_energy - energy_usage, wanted_charge
+    return (
+        heat_factor + heat_change,
+        device,
+        remaining_energy - energy_usage,
+        wanted_charge,
+    )
 
 
 def buy_from_market():
