@@ -11,10 +11,10 @@ from database.simulation.simulation_model import Simulation
 
 
 def create_schedule(
-    db: Session, day: int, simulation_reference: uuid.UUID, heat_factor: float = 0.8
+    db: Session, day: int, heat_factor: float = 0.8
 ):
     db_schedule = Schedule(
-        day=day, simulation_reference=simulation_reference, heat_factor=heat_factor
+        day=day, heat_factor=heat_factor
     )
     db.add(db_schedule)
     db.commit()
@@ -27,9 +27,10 @@ def get_schedule_by_reference(db: Session, schedule_reference):
 
 
 def get_schedule_by_simulation(db: Session, simulation_reference: uuid.UUID, day: int):
+    simulation = db.query(Simulation).filter(Simulation.reference == simulation_reference).first()
     return (
         db.query(Schedule)
-        .filter(Schedule.simulation_reference == simulation_reference)
+        .filter(Schedule.reference == simulation.schedule_reference)
         .filter(Schedule.day == day)
         .first()
     )
@@ -73,7 +74,6 @@ def logic(db: Session, simulation_reference: uuid.UUID):
     db_schedule = create_schedule(
         db=db,
         day=simulation.day,
-        simulation_reference=simulation.reference,
         heat_factor=example_schedule_data.get("heatFactor"),
     )
 

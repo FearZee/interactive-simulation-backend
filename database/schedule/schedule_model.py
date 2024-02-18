@@ -20,6 +20,6 @@ class Schedule(Base):
     heat_factor = Column(Float)
 
     simulation = relationship("Simulation", back_populates="schedule")
-    simulation_reference = Column(UUID, ForeignKey("simulations.reference"))
+    # simulation_reference = Column(UUID, ForeignKey("simulations.reference"))
 
     devices = relationship("Device", back_populates="schedule")

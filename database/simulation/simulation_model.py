@@ -30,6 +30,7 @@ class Simulation(Base):
     energy_market_reference = Column(UUID, ForeignKey("energy_markets.reference"))
     energy_market = relationship("EnergyMarket", back_populates="simulation")
 
+    schedule_reference = Column(UUID, ForeignKey("schedules.reference"))
     schedule = relationship("Schedule", back_populates="simulation")
 
     # weather = relationship("Weather", back_populates="simulation")
