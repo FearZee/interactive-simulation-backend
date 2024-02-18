@@ -15,6 +15,3 @@ class ScheduleScheme(BaseModel):
 class CreateScheduleScheme(BaseModel):
     day: str
     heat_factor: float
-
-    class Config:
-        from_attributes = True

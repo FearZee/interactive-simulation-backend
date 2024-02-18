@@ -52,6 +52,8 @@ def create_simulation(db: Session):
     )
     db_schedule = logic(db=db, simulation_reference=db_simulation.reference)
     db_simulation.schedule_reference = db_schedule.reference
+    db.commit()
+    db.refresh(db_simulation)
 
     return db_simulation
 

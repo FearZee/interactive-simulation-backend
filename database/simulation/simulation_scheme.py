@@ -19,7 +19,7 @@ class SimulationResponseScheme(BaseModel):
     battery_reference: uuid.UUID
     weather_reference: uuid.UUID
     energy_market_reference: uuid.UUID
-    scenario_reference: uuid.UUID
+    schedule_reference: uuid.UUID
 
     class Config:
         from_attributes = True

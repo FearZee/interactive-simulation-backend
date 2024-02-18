@@ -17,6 +17,7 @@ from database.weather.weather_service import create_weather
 from routes.schedule import schedule_router
 from routes.simulation import simulation_router
 from routes.photovoltaic import pv_router
+from routes.weather import weather_router
 
 simulation_model.Base.metadata.create_all(bind=engine)
 weather_model.Base.metadata.create_all(bind=engine)
@@ -46,6 +47,7 @@ app.add_middleware(
 app.include_router(simulation_router)
 app.include_router(pv_router)
 app.include_router(schedule_router)
+app.include_router(weather_router)
 
 
 def get_db():

@@ -58,17 +58,20 @@ def get_schedule_by_reference_with_devices(db: Session, schedule_reference):
 
 
 def get_schedule_by_simulation_with_devices(
-    db: Session, simulation_reference: uuid.UUID, day: int
+    db: Session, schedule_reference: uuid.UUID
 ):
     return (
         db.query(Schedule)
-        .filter(Schedule.simulation_reference == simulation_reference)
-        .filter(Schedule.day == day)
+        .filter(Schedule.reference == schedule_reference)
         .join(Device)
         .options(joinedload(Schedule.devices).joinedload(Device.base_device))
         .first()
     )
 
+
+def get_schedule_with_usage(db: Session, schedule_reference: uuid):
+    schedule_with_device = get_schedule_by_reference_with_devices(db, schedule_reference)
+    return schedule_with_device
 
 def logic(db: Session, simulation_reference: uuid.UUID):
     with open("example-data/example-schedule.json", "r") as json_file:
@@ -80,8 +83,8 @@ def logic(db: Session, simulation_reference: uuid.UUID):
         .first()
     )
 
-    found_schedule = get_schedule_by_simulation(
-        db=db, simulation_reference=simulation_reference, day=simulation.day
+    found_schedule = get_schedule_by_reference(
+        db=db, schedule_reference=simulation.schedule_reference
     )
 
     if found_schedule:

@@ -39,7 +39,7 @@ def calculate_solution(db: Session, simulation_reference: uuid.UUID):
     weather = get_weather_by_reference(db=db, reference=simulation.weather_reference)
 
     schedule = get_schedule_by_simulation_with_devices(
-        db=db, simulation_reference=simulation_reference, day=simulation.day
+        db=db, schedule_reference=simulation.schedule_reference
     )
 
     solutionSchedule = {}

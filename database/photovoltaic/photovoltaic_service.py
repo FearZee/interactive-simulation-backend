@@ -30,10 +30,10 @@ def get_output_by_day(db, day: int, photovoltaic_reference: uuid.UUID):
         db.query(EnergyOutput)
         .filter(EnergyOutput.day == day)
         .filter(EnergyOutput.photovoltaic_reference == photovoltaic_reference)
-        .all()
+        .first()
     )
 
-    if len(output) == 0:
+    if output:
         calculate_solar_output_for_day(
             db=db, day=day, photovoltaic_reference=photovoltaic_reference
         )
@@ -41,7 +41,7 @@ def get_output_by_day(db, day: int, photovoltaic_reference: uuid.UUID):
             db.query(EnergyOutput)
             .filter(EnergyOutput.day == day)
             .filter(EnergyOutput.photovoltaic_reference == photovoltaic_reference)
-            .all()
+            .first()
         )
     else:
         return output
