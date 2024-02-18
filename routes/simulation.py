@@ -2,6 +2,10 @@ import uuid
 
 from fastapi import APIRouter, Depends
 
+from database.schedule.schedule_service import (
+    get_schedule_by_simulation,
+    get_schedule_complete_by_simulation,
+)
 from database.simulation.simulation_scheme import SimulationResponseScheme
 from database.simulation.simulation_service import (
     get_simulation_by_reference,
@@ -26,3 +30,12 @@ async def method_create_simulation(db=Depends(get_db)):
 @simulation_router.get("/simulation/{simulation_reference}/solution")
 async def get_solution(simulation_reference: uuid.UUID, db=Depends(get_db)):
     return calculate_solution(db=db, simulation_reference=simulation_reference)
+
+
+@simulation_router.get("/simulation/{simulation_reference}/{day}/complete_usage")
+async def get_complete_usage(
+    simulation_reference: uuid.UUID, day: int, db=Depends(get_db)
+):
+    return get_schedule_complete_by_simulation(
+        db=db, simulation_reference=simulation_reference, day=day
+    )

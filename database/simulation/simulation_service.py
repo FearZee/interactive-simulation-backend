@@ -54,3 +54,10 @@ def create_simulation(db: Session):
     db_simulation.schedule_reference = db_schedule.reference
 
     return db_simulation
+
+
+def get_complete_usage(db: Session, simulation_reference: uuid.UUID):
+    simulation = get_simulation_by_reference(
+        db=db, simulation_reference=simulation_reference
+    )
+    return simulation

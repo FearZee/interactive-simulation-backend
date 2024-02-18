@@ -36,6 +36,18 @@ def get_schedule_by_simulation(db: Session, simulation_reference: uuid.UUID, day
     )
 
 
+def get_schedule_complete_by_simulation(
+    db: Session, simulation_reference: uuid.UUID, day: int
+):
+    return (
+        db.query(Schedule)
+        .filter(Schedule.simulation_reference == simulation_reference)
+        .filter(Schedule.day == day)
+        .first()
+        .complete
+    )
+
+
 def get_schedule_by_reference_with_devices(db: Session, schedule_reference):
     return (
         db.query(Schedule)
@@ -62,7 +74,11 @@ def logic(db: Session, simulation_reference: uuid.UUID):
     with open("example-data/example-schedule.json", "r") as json_file:
         example_schedule_data = json.load(json_file)
 
-    simulation = db.query(Simulation).filter(Simulation.reference == simulation_reference).first()
+    simulation = (
+        db.query(Simulation)
+        .filter(Simulation.reference == simulation_reference)
+        .first()
+    )
 
     found_schedule = get_schedule_by_simulation(
         db=db, simulation_reference=simulation_reference, day=simulation.day
