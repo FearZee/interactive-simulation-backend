@@ -10,12 +10,8 @@ from database.schedule.schedule_model import Schedule
 from database.simulation.simulation_model import Simulation
 
 
-def create_schedule(
-    db: Session, day: int, heat_factor: float = 0.8
-):
-    db_schedule = Schedule(
-        day=day, heat_factor=heat_factor
-    )
+def create_schedule(db: Session, day: int, heat_factor: float = 0.8):
+    db_schedule = Schedule(day=day, heat_factor=heat_factor)
     db.add(db_schedule)
     db.commit()
     db.refresh(db_schedule)
@@ -27,7 +23,11 @@ def get_schedule_by_reference(db: Session, schedule_reference):
 
 
 def get_schedule_by_simulation(db: Session, simulation_reference: uuid.UUID, day: int):
-    simulation = db.query(Simulation).filter(Simulation.reference == simulation_reference).first()
+    simulation = (
+        db.query(Simulation)
+        .filter(Simulation.reference == simulation_reference)
+        .first()
+    )
     return (
         db.query(Schedule)
         .filter(Schedule.reference == simulation.schedule_reference)
@@ -52,14 +52,12 @@ def get_schedule_by_reference_with_devices(db: Session, schedule_reference):
     return (
         db.query(Schedule)
         .filter(Schedule.reference == schedule_reference)
-        .options(joinedload(Schedule.devices))
+        .options(joinedload(Schedule.devices).joinedload(Device.base_device))
         .first()
     )
 
 
-def get_schedule_by_simulation_with_devices(
-    db: Session, schedule_reference: uuid.UUID
-):
+def get_schedule_by_simulation_with_devices(db: Session, schedule_reference: uuid.UUID):
     return (
         db.query(Schedule)
         .filter(Schedule.reference == schedule_reference)
@@ -70,8 +68,11 @@ def get_schedule_by_simulation_with_devices(
 
 
 def get_schedule_with_usage(db: Session, schedule_reference: uuid):
-    schedule_with_device = get_schedule_by_reference_with_devices(db, schedule_reference)
+    schedule_with_device = get_schedule_by_reference_with_devices(
+        db, schedule_reference
+    )
     return schedule_with_device
+
 
 def logic(db: Session, simulation_reference: uuid.UUID):
     with open("example-data/example-schedule.json", "r") as json_file:

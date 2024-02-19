@@ -54,3 +54,7 @@ def create_device(db: Session, device: CreateDeviceScheme):
     db.commit()
     db.refresh(db_device)
     return db_device
+
+
+def get_controlled_devices(db: Session):
+    return db.query(BaseDevice).filter(BaseDevice.controllable == True).all()
