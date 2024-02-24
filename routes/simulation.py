@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 
 from database.schedule.schedule_service import (
     get_schedule_by_simulation,
@@ -11,6 +12,7 @@ from database.simulation.simulation_service import (
     get_simulation_by_reference,
     create_simulation,
 )
+from database.solution.generate_tips import generate_tips
 from database.solution.solution_service import calculate_solution
 from routes.get_db import get_db
 
@@ -38,4 +40,25 @@ async def get_complete_usage(
 ):
     return get_schedule_complete_by_simulation(
         db=db, simulation_reference=simulation_reference, day=day
+    )
+
+
+class UserDevice(BaseModel):
+    name: str
+    duration: int
+    wattage: float
+    base_device_reference: uuid.UUID
+
+
+class Item(BaseModel):
+    time_slot: int
+    device: list[UserDevice]
+
+
+@simulation_router.put("/simulation/{simulation_reference}/tip")
+async def get_tip(
+    simulation_reference: uuid.UUID, user_solution: list[Item], db=Depends(get_db)
+):
+    return generate_tips(
+        db=db, simulation_reference=simulation_reference, user_solution=user_solution
     )

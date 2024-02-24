@@ -156,6 +156,13 @@
       "wattage": 11000,
       "standByWattage": 0,
       "controllable": true
+    },{
+      "reference": "b103c446-078a-4561-b3c8-85865b6b7f50",
+      "name": "Battery",
+      "type": "battery",
+      "wattage": 0,
+      "standByWattage": 0,
+      "controllable": true
     }
   ]
 }
