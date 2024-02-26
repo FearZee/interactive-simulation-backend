@@ -32,10 +32,6 @@ app = FastAPI()
 
 
 origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "http://localhost:5173",
-    "http://75.119.145.51:81",
     "https://bs.plaesh.de",
 ]
 
