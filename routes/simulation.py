@@ -11,6 +11,7 @@ from database.simulation.simulation_scheme import SimulationResponseScheme
 from database.simulation.simulation_service import (
     get_simulation_by_reference,
     create_simulation,
+    update_simulation,
 )
 from database.solution.generate_tips import generate_tips
 from database.solution.solution_service import calculate_solution
@@ -62,3 +63,8 @@ async def get_tip(
     return generate_tips(
         db=db, simulation_reference=simulation_reference, user_solution=user_solution
     )
+
+
+@simulation_router.post("/simulation/{simulation_reference}/new-day")
+async def create_new_day(simulation_reference: uuid.UUID, db=Depends(get_db)):
+    return update_simulation(db=db, simulation_reference=simulation_reference)

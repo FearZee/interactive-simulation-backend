@@ -60,6 +60,38 @@ def create_simulation(db: Session):
     return db_simulation
 
 
+def update_simulation(db: Session, simulation_reference: uuid.UUID):
+    simulation = get_simulation_by_reference(
+        db=db, simulation_reference=simulation_reference
+    )
+    day = random.randint(1, 365)
+    simulation.day = day
+    db.commit()
+    db.refresh(simulation)
+    db_weather = create_weather(db=db, day=day)
+    simulation.weather_reference = db_weather.reference
+
+    db_energy_market = create_price_for_day(
+        db=db, day=day, weather_reference=db_weather.reference
+    )
+    simulation.energy_market_reference = db_energy_market.reference
+
+    battery = create_battery(db, BatteryScheme(capacity=10, charge=0.2))
+    simulation.battery_reference = battery.reference
+
+    db_energy_out = calculate_solar_output_for_day(
+        db=db,
+        day=simulation.day,
+        photovoltaic_reference=simulation.photovoltaic_reference,
+    )
+    db_schedule = logic(db=db, simulation_reference=simulation.reference)
+    simulation.schedule_reference = db_schedule.reference
+    calculate_solution(db=db, simulation_reference=simulation.reference)
+    db.commit()
+    db.refresh(simulation)
+    return simulation
+
+
 def get_complete_usage(db: Session, simulation_reference: uuid.UUID):
     simulation = get_simulation_by_reference(
         db=db, simulation_reference=simulation_reference
