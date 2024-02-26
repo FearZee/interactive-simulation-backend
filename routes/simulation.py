@@ -24,7 +24,7 @@ async def get_simulation(simulation_reference: uuid.UUID, db=Depends(get_db)):
     return get_simulation_by_reference(db=db, simulation_reference=simulation_reference)
 
 
-@simulation_router.put("/simulation/", response_model=SimulationResponseScheme)
+@simulation_router.put("/simulation", response_model=SimulationResponseScheme)
 async def method_create_simulation(db=Depends(get_db)):
     return create_simulation(db=db)
 
