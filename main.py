@@ -4,6 +4,7 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 
+
 from database.battery import battery_model
 from database.database import engine, SessionLocal
 from database.device import device_model
@@ -28,6 +29,7 @@ photovoltaic_model.Base.metadata.create_all(bind=engine)
 battery_model.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
 
 origins = [
     "http://localhost",

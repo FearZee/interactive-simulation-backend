@@ -5,8 +5,12 @@ from sqlalchemy.orm import Session, scoped_session, sessionmaker
 from database.battery.battery_service import get_battery_by_reference
 from database.database import engine
 from database.device.device_model import BaseDevice
-from database.energy_market.energy_market_service import get_energy_market_by_reference
-from database.photovoltaic.photovoltaic_service import get_pv_output_by_reference
+from database.energy_market.energy_market_service import (
+    get_energy_market_by_reference,
+)
+from database.photovoltaic.photovoltaic_service import (
+    get_pv_output_by_reference,
+)
 from database.schedule.schedule_service import (
     get_schedule_by_simulation_with_devices,
 )

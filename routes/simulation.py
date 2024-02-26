@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from database.schedule.schedule_service import (
-    get_schedule_by_simulation,
     get_schedule_complete_by_simulation,
 )
 from database.simulation.simulation_scheme import SimulationResponseScheme

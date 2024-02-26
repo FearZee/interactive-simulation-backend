@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from database.battery.battery_service import get_battery_by_reference
-from database.energy_market.energy_market_service import get_energy_market_by_reference
+from database.energy_market.energy_market_service import (
+    get_energy_market_by_reference,
+)
 from database.photovoltaic.photovoltaic_scheme import CreatePhotovoltaicScheme
 from database.photovoltaic.photovoltaic_service import (
     create_photovoltaic,

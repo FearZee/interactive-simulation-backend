@@ -12,3 +12,12 @@ services:
       - ./data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+
+  api:
+    image: docker.io/library/myimage
+    restart: always
+    environment:
+      DATABASE_URI: postgresql://postgres:password@db:5432/simulation
+    ports:
+      - "8000:80"
