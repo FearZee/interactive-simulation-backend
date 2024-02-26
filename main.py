@@ -36,12 +36,12 @@ origins = [
     "http://localhost:8080",
     "http://localhost:5173",
     "http://75.119.145.51:81",
-    "http://bs.plaesh.de",
+    "https://bs.plaesh.de",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins="*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
