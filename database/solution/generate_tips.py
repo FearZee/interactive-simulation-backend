@@ -77,7 +77,8 @@ def generate_tips(db: Session, simulation_reference: uuid.UUID, user_solution: l
                     {"device": device, "messagee": "You could have used energy"}
                 )
 
-            temp_tip[hour] = temp
+            temp_tip[hour] = {"devices": []}
+            temp_tip[hour]["devices"] = temp
             break
 
         else:

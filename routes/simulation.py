@@ -55,7 +55,7 @@ class Item(BaseModel):
     device: list[UserDevice]
 
 
-@simulation_router.put("/simulation/{simulation_reference}/tip")
+@simulation_router.put("/simulation/{simulation_reference}/tips")
 async def get_tip(
     simulation_reference: uuid.UUID, user_solution: list[Item], db=Depends(get_db)
 ):
