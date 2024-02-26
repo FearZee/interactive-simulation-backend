@@ -21,3 +21,9 @@ services:
       DATABASE_URI: postgresql://postgres:password@db:5432/simulation
     ports:
       - "8000:80"
+
+  frontend:
+    image: docker.io/library/getting-started
+    restart: always
+    ports:
+      - "80:80"

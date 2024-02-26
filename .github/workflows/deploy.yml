@@ -1,0 +1,55 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+  publish:
+    name: publish image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: install ssh keys
+        # check this thread to understand why its needed:
+        # <https://stackoverflow.com/a/70447517>
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSHKEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOST }} > ~/.ssh/known_hosts
+
+      - name: build image
+        run: docker build -t bachelor-be .
+
+      - name: Transfer and Load Docker Image
+        run: |
+          docker save docker.io/library/bachelor-be > bachelor-be.tar
+
+      - name: deploy file to server
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: 'root'
+          server: ${{ secrets.HOST }}
+          ssh_private_key: ${{ secrets.SSHKEY }}
+          local_path: './bachelor-be.tar'
+          remote_path: './bachelor/'
+          sftpArgs: '-o ConnectTimeout=5'
+
+  deploy:
+    needs: publish
+    name: deploy image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: install ssh keys
+        # check this thread to understand why its needed:
+        # <https://stackoverflow.com/a/70447517>
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSHKEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOST }} > ~/.ssh/known_hosts
+      - name: connect and pull
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd bachelor && docker load -i bachelor-be.tar && docker compose -f docker-compose.yml up -d && exit"
+      - name: cleanup
+        run: rm -rf ~/.ssh
